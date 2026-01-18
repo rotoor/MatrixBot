@@ -1,21 +1,16 @@
 import os
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
-from aiogram.types import Message
+from handlers.commands import user
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
-
-
-@dp.message()
-async def echo(message: Message):
-    await message.send_copy(chat_id=message.from_user.id)
-
 
 async def main():
+    bot = Bot(token=BOT_TOKEN)
+    dp = Dispatcher()
+    dp.include_router(user)
     await dp.start_polling(bot)
 
 
