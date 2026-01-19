@@ -3,11 +3,11 @@ from aiogram.types import Message
 from aiogram.filters.command import CommandStart, Command
 from keyboards.menu import menu
 
-user = Router()
+user_router = Router()
 
 
-@user.message(CommandStart())
-@user.message(Command("menu"))
+@user_router.message(CommandStart())
+@user_router.message(Command("menu"))
 async def cmd_start(message: Message):
     await message.answer(
         "Choose an action:",
