@@ -30,3 +30,10 @@ def multiply(matrix1: np.ndarray, matrix2: np.ndarray) -> np.ndarray:
     if matrix1.shape[1] != matrix2.shape[0]:
         raise ValueError("Matrices must be...")
     return matrix1 @ matrix2
+
+def inverse(matrix: np.ndarray) -> np.ndarray:
+    if matrix.shape[0] != matrix.shape[1]:
+        raise ValueError("Matrix must be square")
+    if np.isclose(np.linalg.det(matrix), 0):
+        raise ValueError("Determinant is 0.")
+    return np.linalg.inv(matrix)

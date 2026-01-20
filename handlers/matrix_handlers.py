@@ -29,11 +29,21 @@ async def determinant_button(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
+@matrix_router.callback_query(lambda c: c.data == "inverse")
+async def inverse_button(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(MatrixFSM.waiting_first_matrix)
+    await state.update_data(operation="inverse")
+    await callback.message.answer("Send matrix:\nRows — new line\nNumbers — space")
+    await callback.answer()
+
+
 @matrix_router.callback_query(lambda c: c.data == "add")
 async def add_button(callback: CallbackQuery, state: FSMContext):
     await state.set_state(MatrixFSM.waiting_first_matrix)
     await state.update_data(operation="add")
-    await callback.message.answer("Send first matrix:\nRows — new line\nNumbers — space")
+    await callback.message.answer(
+        "Send first matrix:\nRows — new line\nNumbers — space"
+    )
     await callback.answer()
 
 
@@ -41,7 +51,9 @@ async def add_button(callback: CallbackQuery, state: FSMContext):
 async def multiply_button(callback: CallbackQuery, state: FSMContext):
     await state.set_state(MatrixFSM.waiting_first_matrix)
     await state.update_data(operation="multiply")
-    await callback.message.answer("Send first matrix:\nRows — new line\nNumbers — space")
+    await callback.message.answer(
+        "Send first matrix:\nRows — new line\nNumbers — space"
+    )
     await callback.answer()
 
 
@@ -65,12 +77,19 @@ async def handle_first_matrix(message: Message, state: FSMContext):
             await state.clear()
             return
 
+        if operation == "inverse":
+            result = inverse(matrix)
+            text = "\n".join(" ".join(map(str, row)) for row in result)
+            await message.answer(f"Result:\n{text}")
+            await state.clear()
+            return
+
         await state.update_data(matrix1=matrix)
         await state.set_state(MatrixFSM.waiting_second_matrix)
         await message.answer("Send second matrix:\nRows — new line\nNumbers — space")
 
-    except ValueError:
-        await message.answer("Wrong matrix format. Try again:")
+    except ValueError as e:
+        await message.answer(f"Error: {e}\nTry again:")
 
 
 @matrix_router.message(MatrixFSM.waiting_second_matrix)
@@ -93,4 +112,6 @@ async def handle_second_matrix(message: Message, state: FSMContext):
         await state.clear()
 
     except ValueError as e:
-        await message.answer(f"Error: {e}\nTry again:")
+        await message.answer(
+            f"Error: {e}\n" "Send second matrix again or choose another operation."
+        )
